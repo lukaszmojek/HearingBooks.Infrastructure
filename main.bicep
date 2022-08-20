@@ -1,6 +1,10 @@
-param servicePlanDetails object = {
+param location string = resourceGroup().location
+// param environment string = 'test'
+
+
+var servicePlan = {
   name: 'hearing-books-service-plan'
-  location: resourceGroup().location
+  location: location
   kind: 'linux'
   sku: {
     name: 'F1'
@@ -9,11 +13,34 @@ param servicePlanDetails object = {
     family: 'F'
     capacity: 1
   }
-} 
+}
 
-resource servicePlan 'Microsoft.Web/serverfarms@2022-03-01' = {
-  name: servicePlanDetails.name
-  location: servicePlanDetails.location
-  sku: servicePlanDetails.sku
-  kind: servicePlanDetails.kind
+var api = {
+  name: 'hearing-books-api'
+  location: location
+  kind: 'app,${servicePlan.kind}'
+}
+
+resource serverFarm 'Microsoft.Web/serverfarms@2022-03-01' = {
+  name: servicePlan.name
+  location: servicePlan.location
+  sku: servicePlan.sku
+  kind: servicePlan.kind
+}
+
+resource apiAppService 'Microsoft.Web/sites@2022-03-01' = {
+  name: api.name
+  location: api.location
+  kind: api.kind
+  properties: {
+    serverFarmId: serverFarm.id
+  }
+
+  resource hostNameBindings 'hostNameBindings@2022-03-01' = {
+    name: '${api.name}.azurewebsites.net'
+    properties: {
+      siteName: apiAppService.name
+      hostNameType: 'Verified'
+    }
+  }
 }
