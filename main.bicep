@@ -1,9 +1,17 @@
 param location string = resourceGroup().location
-// param environment string = 'test'
 
+@allowed([
+  ''
+  'test'
+  'staging'
+  'production'
+])
+param environment string = ''
+
+var environmentSuffix = environment == '' ? '' : '-${environment}'
 
 var servicePlan = {
-  name: 'hearing-books-service-plan'
+  name: 'hearing-books-service-plan${environmentSuffix}'
   location: location
   kind: 'linux'
   sku: {
@@ -16,7 +24,7 @@ var servicePlan = {
 }
 
 var api = {
-  name: 'hearing-books-api'
+  name: 'hearing-books-api${environmentSuffix}'
   location: location
   kind: 'app,${servicePlan.kind}'
 }
