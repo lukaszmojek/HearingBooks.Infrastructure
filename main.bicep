@@ -29,6 +29,15 @@ var api = {
   kind: 'app,${servicePlan.kind}'
 }
 
+var storageAccount = {
+  name: 'hearingbooks${environment}'
+  location: location
+  sku:{
+    name: 'Standard_RAGRS'
+    tier: 'Standard'
+  }
+}
+
 resource serverFarm 'Microsoft.Web/serverfarms@2022-03-01' = {
   name: servicePlan.name
   location: servicePlan.location
@@ -50,5 +59,19 @@ resource apiAppService 'Microsoft.Web/sites@2022-03-01' = {
       siteName: apiAppService.name
       hostNameType: 'Verified'
     }
+  }
+}
+
+resource storage 'Microsoft.Storage/storageAccounts@2021-09-01' = {
+  name: storageAccount.name
+  location: storageAccount.location
+  kind: 'StorageV2'
+  sku: storageAccount.sku
+  properties: {
+    accessTier: 'Hot'
+  }
+
+  resource blob 'blobServices' = {
+    name: 'default'
   }
 }
