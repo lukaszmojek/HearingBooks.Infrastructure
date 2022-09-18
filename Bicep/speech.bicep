@@ -1,6 +1,17 @@
 param location string = resourceGroup().location
 param skuName string = 'F0'
-param speechServiceName string = 'hearing-books-speech-services'
+
+@allowed([
+  ''
+  'test'
+  'staging'
+  'production'
+])
+param environment string = ''
+
+var environmentSuffix = environment == '' ? '' : '-${environment}'
+
+var speechServiceName = 'hearing-books-speech-services${environmentSuffix}'
 
 resource speech 'Microsoft.CognitiveServices/accounts@2022-03-01' = {
   name: speechServiceName
@@ -11,6 +22,5 @@ resource speech 'Microsoft.CognitiveServices/accounts@2022-03-01' = {
   kind: 'SpeechServices'
   properties: {
     publicNetworkAccess: 'Enabled'
-    restore: true
   }
 }
